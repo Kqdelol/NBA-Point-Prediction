@@ -1,0 +1,23 @@
+import pandas as pd
+from nba_api.stats.static import players, teams
+from nba_api.stats.endpoints import playergamelog
+
+# Getting player from user
+player = input("Enter a player's full name you'd like to predict: ")
+
+# Obtaining player's information
+player_info = players.find_players_by_full_name(player)
+player_name = player_info[0]['full_name']
+player_id = player_info[0]['id']
+
+# Formatting player's current season stats (Up to date)
+player_stats = playergamelog.PlayerGameLog(player_id=player_id, season='2026-27')
+player_stats = player_stats.get_data_frames()[0]
+player_stats.to_excel("Player's Stats.xlsx", index=False)
+
+# Obtaining player's avg points from overall season/last 5 games
+season_avg = player_stats.PTS.iloc[:].mean()
+last_5_avg = player_stats.PTS.iloc[0:5].mean()
+
+avg_scores = pd.DataFrame({'Last 5 Games Avg': [last_5_avg], 'Current Season Avg (Excluding Last 5 games)': [season_avg]}, index=[player_name])
+print(avg_scores)
